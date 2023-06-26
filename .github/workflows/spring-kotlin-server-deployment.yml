@@ -1,9 +1,9 @@
 name: spring-kotlin-server deployment
 
-on:
-  push:
-    branches: ["main", "dev"]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: ["main", "dev"]
+#   workflow_dispatch:
 
 permissions:
   contents: read
@@ -97,7 +97,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           cd infra/user-api/$PROFILE
-          kustomize edit set image spring-kotlin-server-image=${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:$VERSION
+          kustomize edit set image spring-kotlin-server=${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:$VERSION
           git add .
           git commit -m "Update $GITHUB_SHA TAG"
           git push
