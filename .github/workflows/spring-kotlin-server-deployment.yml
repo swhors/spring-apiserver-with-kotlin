@@ -1,9 +1,9 @@
 name: spring-kotlin-server deployment
 
-# on:
-#   push:
-#     branches: ["main", "dev"]
-#   workflow_dispatch:
+ on:
+   push:
+     branches: ["blocked_main", "blocked_dev"]
+   workflow_dispatch:
 
 permissions:
   contents: read
