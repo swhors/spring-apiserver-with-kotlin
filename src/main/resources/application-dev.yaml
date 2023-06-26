@@ -1,0 +1,13 @@
+logging:
+  level:
+    root: debug
+spring:
+  data:
+    mongodb:
+      database: userdb
+      uri: mongodb://tester:tester@127.0.01:37027/testdb
+    redis:
+      cluster:
+        nodes:
+          - 127.0.0.1:6379
+      password: tester
