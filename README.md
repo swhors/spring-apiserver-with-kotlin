@@ -1,4 +1,4 @@
-# eimmo-user-api-proto
+# spring-kotlin-server
 
 # Compile
 
@@ -10,14 +10,14 @@
 # Run
 + Dev
 ```
-   java -jar eimmo-use-api-[version].jar --spring.profiles.active=dev 
+   java -jar spring-kotlin-server-[version].jar --spring.profiles.active=dev 
 ```
 + Prod
 ```
-   java -jar eimmo-use-api-[version].jar --spring.profiles.active=dev 
+   java -jar spring-kotlin-server-[version].jar --spring.profiles.active=dev 
 ```
 
 # Docker
 ```
-    docker build -t eimmo-user-api:[version] .
+    docker build -t spring-kotlin-server:[version] .
 ```
