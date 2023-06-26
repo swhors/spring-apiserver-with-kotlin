@@ -1,0 +1,103 @@
+name: spring-kotlin-server deployment
+
+on:
+  push:
+    branches: ["main", "dev"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  VERSION: ${{ github.sha }}
+  IMAGE_NAME: spring-kotlin-server
+  PROFILE: dev
+  AZURE_CONTAINER_REGISTRY: "[AZURE CONTAINER NAME]"
+
+jobs:
+  build:
+    name: compile, package
+    runs-on: self-hosted
+    outputs:
+      status: ${{ join(steps.*.conclusion) }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+          settings-path: ${{ github.workspace }} # location for the settings.xml file
+      - name: Build with Maven
+        id: package_app
+        run: mvn -B package --file pom.xml
+      - name: create artifact file
+        run: touch ${{ env.PROFILE }}_artifact.txt
+      - name: upload artifact for deployment jobs
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.PROFILE }}_artifact
+          path: ${{ env.PROFILE }}_artifact.txt
+          retention-days: 5
+      - name: check on failure
+        if: steps.package_app.output.status == 'failure'
+        run: exit 1
+  deploy:
+    runs-on: self-hosted
+    name: deploy
+    outputs:
+      status: ${{ join(steps.*.conclusion) }}
+    permissions:
+      contents: read
+      packages: write
+    needs: build
+    if: needs.build.steps.package_app.output.status != 'failure'
+    steps:    
+      - name: Docker login
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+          username: ${{ secrets.ACR_ACCESS_ID }}
+          password: ${{ secrets.ACR_ACCESS_PWD  }}
+      - name: Pull Image
+        run: |
+           docker pull ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:latest || true
+      - name: Build Image with cache
+        run: |
+           docker build --cache-from ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:latest -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:latest -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:$VERSION .
+      - name: Push Image
+        id: push_image
+        run: |
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:$VERSION
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:latest
+      - name: clean docker image
+        if: always()
+        run: |
+          docker rmi ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:$VERSION
+          docker rmi ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:latest
+      - name: check on failure
+        if: steps.push_image.output.status == 'failure'
+        run: exit 1
+  kustomize:
+    runs-on: self-hosted
+    name: kustomize
+    permissions:
+      contents: write
+      packages: write
+    needs: deploy
+    if: needs.build.steps.push_image.output.status != 'failure'
+    steps:
+      - name: Checkout Infra Repository
+        uses: actions/checkout@v3
+        with:
+          ref: infra
+      - name: Update manifest repo
+        run: | # gtaas-support 용 이미지도 함께 세팅됨. 다른 환경에 copy&paste 시 주의
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          cd infra/user-api/$PROFILE
+          kustomize edit set image spring-kotlin-server-image=${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROFILE }}-${{ env.IMAGE_NAME }}:$VERSION
+          git add .
+          git commit -m "Update $GITHUB_SHA TAG"
+          git push
