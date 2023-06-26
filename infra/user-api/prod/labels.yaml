@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-kotlin-server
+  labels:
+    tags.datadoghq.com/service: "spring-kotlin-server"
+spec:
+  template:
+    metadata:
+      labels:
+        tags.datadoghq.com/service: "spring-kotlin-server"

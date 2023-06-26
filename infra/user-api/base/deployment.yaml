@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-kotlin-server
+spec:
+  selector:
+    matchLabels:
+      app: spring-kotlin-server
+      component: api
+  template:
+    metadata:
+      labels:
+        app: spring-kotlin-server
+        component: api
+        environment: dev
+    spec:
+      containers:
+        - name: api
+          image: spring-kotlin-server:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 80m
+          env:
+            - name: spring_profiles_active
+              value: "dev"
+          command: [ "java", "-Xms1G", "-jar", "spring-kotlin-server-0.0.1.jar"]

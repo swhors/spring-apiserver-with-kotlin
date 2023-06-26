@@ -1,0 +1,10 @@
+- op: replace
+  path: /spec/rules/0/host
+  value: dev-spring-kotlin-server.tester.com
+- op: replace
+  path: /spec/tls/0/secretName
+  value: dev-spring-kotlin-server-tls
+- op: replace
+  path: /spec/tls/0/hosts
+  value:
+    - dev-spring-kotlin-server.tester.com
