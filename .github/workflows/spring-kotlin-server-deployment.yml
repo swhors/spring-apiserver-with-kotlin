@@ -1,6 +1,6 @@
 name: spring-kotlin-server deployment
 
- on:
+on:
    push:
      branches: ["blocked_main", "blocked_dev"]
    workflow_dispatch:
