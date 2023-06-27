@@ -29,22 +29,35 @@
 ### 2.1 GitHub Setting
  - Create application account in azure active directory
  - Set ACR_ACCESS_PWD and ACR_ACCESS_ID using above information
-![alt text](docs/image/image001.png "github setting")
+<p align="center">
+<img src="docs/image/image001.png" width="80%">
+</p>
 
 ### 2.2 ArgoCD Setting
  #### 2.2.1 Create Application Project
  - Create Porject
-![alt text](docs/image/image002-1.png "argocd step 1-0")
+<p align="center">
+<img src="docs/image/image002-1.png" width="80%">
+</p>
+
  - Set project properties to access kubernetes url.
 
  #### 2.2.2 Create GitHub access Information
-![alt text](docs/image/image003-1.png "argocd step 2-0")
-![alt text](docs/image/image003-2.png "argocd step 2-1")
+<p align="center">
+<img src="docs/image/image003-1.png" width="80%">
+<img src="docs/image/image003-2.png" width="80%">
+</p>
+
  #### 2.2.3 Create Project
-![alt_text](docs/image/image004-1.png "argocd step 3-0")
-![alt text](docs/image/image004-2.png "argocd step 3-1")
+<p align="center">
+<img src="docs/image/image004-1.png" width="80%">
+<img src="docs/image/image004-2.png" width="80%">
+</p>
+
  #### 2.2.4 Finally Completed
-![alt text](docs/image/image005-1.png "argocd step 4-0")
+<p align="center">
+<img src="docs/image/image005-1.png" width="80%">
+</p>
 
 ### 2.3 Kubernetes Check
 ```agsl
