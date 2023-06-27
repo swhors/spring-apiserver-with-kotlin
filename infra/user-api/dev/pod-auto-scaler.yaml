@@ -2,7 +2,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: spring-kotlin-server-hpa
-  namespace: main-api-service
+  namespace: api
 spec:
   maxReplicas: 2
   minReplicas: 1
